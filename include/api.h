@@ -1,95 +1,66 @@
-/*****************************************************************************
-Copyright (c) 2001 - 2010, The Board of Trustees of the University of Illinois.
-All rights reserved.
-
-Redistribution and use in source and binary forms, with or without
-modification, are permitted provided that the following conditions are
-met:
-
-* Redistributions of source code must retain the above
-  copyright notice, this list of conditions and the
-  following disclaimer.
-
-* Redistributions in binary form must reproduce the
-  above copyright notice, this list of conditions
-  and the following disclaimer in the documentation
-  and/or other materials provided with the distribution.
-
-* Neither the name of the University of Illinois
-  nor the names of its contributors may be used to
-  endorse or promote products derived from this
-  software without specific prior written permission.
-
-THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS
-IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO,
-THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR
-PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT OWNER OR
-CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL,
-EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO,
-PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR
-PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF
-LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING
-NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*****************************************************************************/
-
-/*****************************************************************************
-written by
-   Yunhong Gu, last updated 09/28/2010
-*****************************************************************************/
-
 #ifndef __UDT_API_H__
 #define __UDT_API_H__
-
-
 #include <map>
 #include <vector>
+#include <memory>
 #include "udt.h"
 #include "packet.h"
 #include "queue.h"
 #include "cache.h"
 #include "epoll.h"
 
-class CUDT;
+class udt;
 
-class CUDTSocket
-{
+#pragma once
+
+#include <cstdint>
+#include <set>
+#include <mutex>
+#include <condition_variable>
+
+class cudt; // forward declaration
+using udtsocket_t = int; 
+
+enum class udt_status {
+    init,
+    open,
+    connecting,
+    connected,
+    closed,
+    broken
+};
+
+class udt_socket {
 public:
-   CUDTSocket();
-   ~CUDTSocket();
-
-   UDTSTATUS m_Status;                       // current socket state
-
-   uint64_t m_TimeStamp;                     // time when the socket is closed
-
-   int m_iIPversion;                         // IP version
-   sockaddr* m_pSelfAddr;                    // pointer to the local address of the socket
-   sockaddr* m_pPeerAddr;                    // pointer to the peer address of the socket
-
-   UDTSOCKET m_SocketID;                     // socket ID
-   UDTSOCKET m_ListenSocket;                 // ID of the listener socket; 0 means this is an independent socket
-
-   UDTSOCKET m_PeerID;                       // peer socket ID
-   int32_t m_iISN;                           // initial sequence number, used to tell different connection from same IP:port
-
-   CUDT* m_pUDT;                             // pointer to the UDT entity
-
-   std::set<UDTSOCKET>* m_pQueuedSockets;    // set of connections waiting for accept()
-   std::set<UDTSOCKET>* m_pAcceptSockets;    // set of accept()ed connections
-
-   pthread_cond_t m_AcceptCond;              // used to block "accept" call
-   pthread_mutex_t m_AcceptLock;             // mutex associated to m_AcceptCond
-
-   unsigned int m_uiBackLog;                 // maximum number of connections in queue
-
-   int m_iMuxID;                             // multiplexer ID
-
-   pthread_mutex_t m_ControlLock;            // lock this socket exclusively for control APIs: bind/listen/connect
+    udt_socket() noexcept;
+    ~udt_socket();
+    udt_socket(const udt_socket&) = delete;
+    udt_socket& operator=(const udt_socket&) = delete; 
 
 private:
-   CUDTSocket(const CUDTSocket&);
-   CUDTSocket& operator=(const CUDTSocket&);
+    udt_status status_ {};                      // current socket state
+    uint64_t timestamp_ {};                     // time when the socket is closed
+    int ip_version_ {};                         // IP version (IPv4 or IPv6)
+    sockaddr* self_addr_ {nullptr};  // pointer to the local address
+    sockaddr* peer_addr_ {nullptr};             // pointer to the peer address
+
+    udtsocket_t socket_id_ {};                    // this socket's ID
+    udtsocket_t listen_socket_ {};                // listener socket ID (0 if independent)
+
+    udtsocket_t peer_id_ {};                      // peer socket ID
+    int32_t initial_seq_num_ {};                // initial sequence number
+
+    cudt* udt_entity_ {nullptr};                // pointer to the UDT protocol logic
+
+    std::unique_ptr<std::set<udtsocket_t>> queued_sockets_;    // sockets waiting for accept()
+    std::unique_ptr<std::set<udtsocket_t>> accepted_sockets_ {nullptr};  // sockets already accepted
+    std::condition_variable accept_cond_;       // used to block accept()
+    std::mutex accept_mutex_;                   // mutex for accept_cond_
+    unsigned int backlog_ {};                   // max queued connections
+    int mux_id_ {};                             // multiplexer ID
+    std::mutex control_mutex_;                  // used for control operations (bind/listen/connect)
 };
+
 
 ////////////////////////////////////////////////////////////////////////////////
 

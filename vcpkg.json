@@ -6,6 +6,7 @@
       "fmt",
       "boost-asio",
       "spdlog",
+      "openssl",
       "gtest"
     ],
     "builtin-baseline": "2a68876e92fbb3423952b91f3d20406317041c92"
