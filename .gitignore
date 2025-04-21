@@ -1,0 +1,76 @@
+# Build folders
+build/
+bin/
+out/
+CMakeFiles/
+CMakeCache.txt
+Makefile
+cmake_install.cmake
+
+# Compiled object files, binaries, libraries
+*.o
+*.obj
+*.so
+*.a
+*.dll
+*.lib
+*.exe
+*.out
+*.dylib
+
+# Precompiled headers
+*.gch
+*.pch
+
+# Debug/Release directories
+Debug/
+Release/
+
+# Logs and temporary files
+*.log
+*.tmp
+*.swp
+*.swo
+*.bak
+*.old
+
+# Editor/IDE configs
+.vscode/
+.idea/
+*.code-workspace
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# vcpkg artifacts (optional)
+vcpkg_installed/
+.vcpkg-root
+*.vcpkg-lock.json
+
+# Conan
+conanbuild/
+conanfile.lock
+
+# Bazel
+bazel-*
+bazel-out/
+bazel-bin/
+bazel-testlogs/
+
+# Ninja
+.ninja_log
+.ninja_deps
+
+# CLion CMake helper files
+cmake-build-*/
+
+# Coverage files
+*.gcda
+*.gcno
+*.gcov
+
+# Generated protobuf/grpc files (if any)
+*.pb.cc
+*.pb.h
+
