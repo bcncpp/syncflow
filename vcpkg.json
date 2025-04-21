@@ -1,0 +1,13 @@
+{
+    "name": "syncflow",
+    "version": "0.1.0",
+    "description": "High-performance File Transfer in C++",
+    "dependencies": [
+      "fmt",
+      "boost-asio",
+      "spdlog",
+      "gtest"
+    ],
+    "builtin-baseline": "2a68876e92fbb3423952b91f3d20406317041c92"
+  }
+  
