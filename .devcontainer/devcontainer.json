@@ -1,0 +1,17 @@
+{
+  "name": "C++20 DevContainer",
+  "build": {
+    "dockerfile": "Dockerfile"
+  },
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "extensions": [
+    "ms-vscode.cpptools",
+    "llvm-vs-code-extensions.vscode-clangd",
+    "bazelbuild.vscode-bazel"
+  ],
+  "postCreateCommand": "clang++ --version && cmake --version && bazel --version",
+  "remoteUser": "vscode"
+}
+
